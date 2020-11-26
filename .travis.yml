@@ -10,6 +10,7 @@ before_install:
   - export INI=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo memory_limit = -1 >> $INI
   - composer global require --no-progress --no-scripts --no-plugins lemurro/installer
+  - export PATH=$HOME/.config/composer/vendor/bin:$PATH
 install:
   - cd ~
   - lemurro new mycrm --lv=2.0 --api --skip --silent
