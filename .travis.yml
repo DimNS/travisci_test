@@ -1,0 +1,26 @@
+dist: focal # Ubuntu Focal 20.04
+language: php
+php:
+  - 7.4
+matrix:
+  fast_finish: true
+services:
+  - mysql
+before_install:
+  - export INI=~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - echo memory_limit = -1 >> $INI
+  - composer self-update
+  - composer self-update --2
+  - composer global require --no-progress --no-scripts --no-plugins lemurro/installer
+install:
+  - cd /etc/www
+  - lemurro new mycrm --lv=2.0 --api --skip --silent
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS lemurro;'
+  - mysql -u root lemurro < /etc/www/mycrm/api/database.sql
+  - cd /etc/www/mycrm/api/vendor/lemurro/api-core
+  - composer install
+before_script:
+  - php -S 127.0.0.1:8000 -t /etc/www/mycrm/api/public > /dev/null 2>&1 &
+script:
+  - php /etc/www/mycrm/api/vendor/bin/codecept run api
+  - php /etc/www/mycrm/api/vendor/lemurro/api-core/vendor/bin/codecept run api
